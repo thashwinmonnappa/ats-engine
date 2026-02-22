@@ -1,11 +1,6 @@
+streamlit
+sentence-transformers
+scikit-learn
 pdfplumber
 python-docx
-spacy
-scikit-learn
-sentence-transformers
 numpy
-nltk
-fastapi
-uvicorn
-python-multipart
-streamlit
