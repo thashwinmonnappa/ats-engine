@@ -1,5 +1,3 @@
----
-
 # AI Resume Screening Engine (ATS)
 
 An AI-powered **Applicant Tracking System (ATS) resume screening engine** that evaluates candidate resumes against job descriptions using **skill extraction, experience analysis, and semantic similarity scoring**.
