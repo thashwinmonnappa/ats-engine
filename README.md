@@ -1,7 +1,3 @@
-Below is a **clean, professional README summary** you can directly place in your `README.md`. It explains what the project does, architecture, features, and deployment without being overly academic.
-
-You can copy-paste it as is.
-
 ---
 
 # AI Resume Screening Engine (ATS)
