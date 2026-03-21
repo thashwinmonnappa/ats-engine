@@ -1,18 +1,13 @@
 import os
-from app.main import run_pipeline
+from app.pipeline.ats_pipeline_v2 import ATSPipelineV2
 
 
 class BulkRanker:
-    """
-    Bulk Resume Ranking Engine
-
-    - Iterates through a folder of resumes
-    - Runs ATS scoring pipeline
-    - Sorts candidates by final score
-    - Returns ranked list
-    """
 
     SUPPORTED_FORMATS = (".pdf", ".docx", ".txt")
+
+    def __init__(self):
+        self.pipeline = ATSPipelineV2()
 
     def rank_resumes(self, resume_folder: str, jd_input: str):
 
@@ -29,30 +24,30 @@ class BulkRanker:
             resume_path = os.path.join(resume_folder, file_name)
 
             try:
-                report = run_pipeline(resume_path, jd_input)
+
+                # Run Version-2 pipeline
+                report = self.pipeline.analyze(resume_path, jd_input)
 
                 results.append({
                     "resume_file": file_name,
                     "final_score": report["final_score"],
                     "experience_alignment": report["experience_alignment"],
-                    "skill_coverage": report["skill_coverage"],
                     "semantic_fit": report["semantic_fit"]
                 })
 
             except Exception as e:
+
                 results.append({
                     "resume_file": file_name,
                     "error": str(e)
                 })
 
-        # Sort by final_score (descending), ignore error entries
         ranked = sorted(
             [r for r in results if "final_score" in r],
             key=lambda x: x["final_score"],
             reverse=True
         )
 
-        # Append failed files at bottom
         failed = [r for r in results if "error" in r]
 
         return ranked + failed

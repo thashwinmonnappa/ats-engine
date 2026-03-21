@@ -1,0 +1,34 @@
+{
+  "machine_learning": [
+    "deep learning",
+    "supervised learning",
+    "unsupervised learning"
+  ],
+
+  "deep learning": [
+    "cnn",
+    "rnn",
+    "transformers",
+    "lstm"
+  ],
+
+  "nlp": [
+    "bert",
+    "ner",
+    "text classification",
+    "tokenization"
+  ],
+
+  "data engineering": [
+    "spark",
+    "airflow",
+    "kafka",
+    "etl"
+  ],
+
+  "cloud": [
+    "aws",
+    "azure",
+    "gcp"
+  ]
+}

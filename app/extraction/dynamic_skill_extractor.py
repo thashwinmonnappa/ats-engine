@@ -84,4 +84,4 @@ class DynamicSkillExtractor:
 
             cleaned.append(skill)
 
-        return list(set(cleaned))[:top_k]
+        return list(dict.fromkeys(cleaned))[:top_k]
