@@ -4,14 +4,14 @@ import tempfile
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
-from ui.skill_comparison_table import show_skill_comparison
+from skill_comparison_table import show_skill_comparison
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app.pipeline.ats_pipeline_v2 import ATSPipelineV2
-from ui.score_cards import show_score_cards
-from ui.radar_chart import radar_chart
-from ui.skill_gap_panel import show_skill_gap
+from score_cards import show_score_cards
+from radar_chart import radar_chart
+from skill_gap_panel import show_skill_gap
 
 
 st.set_page_config(
