@@ -6,3 +6,4 @@ python-docx
 numpy
 plotly
 torch
+pandas
