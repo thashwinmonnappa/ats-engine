@@ -27,3 +27,9 @@ JD/
 
 # Streamlit cache
 .streamlit/
+
+# temp files
+temp_*.*
+
+# SECRETS
+.env
