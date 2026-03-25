@@ -9,3 +9,8 @@ pdfplumber
 python-docx
 sentence-transformers
 requests
+plotly
+streamlit
+pandas
+numpy
+scikit-learn
