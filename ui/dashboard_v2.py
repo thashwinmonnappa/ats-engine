@@ -21,7 +21,7 @@ from skill_gap_panel import show_skill_gap
 # CONFIG
 # -----------------------------------
 # BACKEND_URL = "http://127.0.0.1:8000"  # Local backend (for development)
-BACKEND_URL = "http://ats-engine-production.up.railway.app"  
+BACKEND_URL = "https://ats-engine-production.up.railway.app"  
 
 st.set_page_config(page_title="AI Resume ATS Analyzer", layout="wide")
 
