@@ -6,5 +6,6 @@ python-jose[cryptography]
 python-dotenv
 pydantic[email]
 pdfplumber
-docx
-exceptions
+python-docx
+sentence-transformers
+requests
