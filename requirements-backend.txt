@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+razorpay
+supabase
+python-jose[cryptography]
+python-dotenv
+pydantic[email]

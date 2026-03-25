@@ -1,0 +1,5 @@
+[build]
+builder = "NIXPACKS"
+
+[build.env]
+NIXPACKS_PYTHON_INSTALL_COMMAND = "pip install -r requirements-backend.txt"

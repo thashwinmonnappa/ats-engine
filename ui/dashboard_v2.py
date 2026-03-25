@@ -25,7 +25,11 @@ BACKEND_URL = "https://ats-engine-production.up.railway.app"
 
 st.set_page_config(page_title="AI Resume ATS Analyzer", layout="wide")
 
-pipeline = ATSPipelineV2()
+@st.cache_resource
+def load_pipeline():
+    return ATSPipelineV2()
+
+pipeline = load_pipeline()
 
 
 # -----------------------------------
@@ -329,7 +333,7 @@ if st.session_state["analysis_done"]:
 
     # --- PREVIEW (visible to all users) ---
     st.metric("ATS Score", f"{round(preview['final_score'], 2)}%")
-    st.plotly_chart(radar_chart(preview), use_container_width=True)
+    st.plotly_chart(radar_chart(preview), width='stretch')
 
     st.write("Key missing skills impacting your score:")
     st.write(preview["missing_skills"][:3])
