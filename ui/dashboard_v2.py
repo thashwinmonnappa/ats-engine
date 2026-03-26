@@ -334,7 +334,7 @@ if st.session_state["analysis_done"]:
 
     # --- PREVIEW (visible to all users) ---
     st.metric("ATS Score", f"{round(preview['final_score'], 2)}%")
-    st.plotly_chart(radar_chart(preview), width='stretch')
+    st.plotly_chart(radar_chart(preview), use_container_width=True)
 
     st.write("Key missing skills impacting your score:")
     st.write(preview["missing_skills"][:3])
