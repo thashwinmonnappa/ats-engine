@@ -36,4 +36,4 @@ def show_skill_comparison(report):
 
     styled = df.style.apply(highlight_row, axis=1)
 
-    st.dataframe(styled, use_container_width=True, hide_index=True)
+    st.dataframe(styled, use_container_width="auto", hide_index=True)
