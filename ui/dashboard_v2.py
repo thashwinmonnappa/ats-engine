@@ -134,9 +134,10 @@ try:
         st.session_state["paid_user"] = res.json()["paid"]
 
     elif res.status_code == 401:
-        st.warning("Session expired. Please log in again.")
-        st.session_state.clear()
-        st.rerun()
+        if st.session_state.get("token"):  # only clear if we actually had a token
+            st.warning("Session expired. Please log in again.")
+            st.session_state.clear()
+            st.rerun()
 
 except Exception as e:
     st.error(f"Could not reach backend: {str(e)}")
@@ -229,10 +230,10 @@ def show_payment():
                 headers=auth_headers()
             )
 
-            if res.status_code == 401:
-                st.error("Session expired. Please log in again.")
-                st.session_state.clear()
-                st.rerun()
+            # if res.status_code == 401:
+            #     st.error("Session expired. Please log in again.")
+            #     st.session_state.clear()
+            #     st.rerun()
 
             data = res.json()
 
