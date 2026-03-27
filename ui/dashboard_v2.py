@@ -216,12 +216,6 @@ elif st.session_state["last_input"] != current_input:
 # PAYMENT FLOW
 # -----------------------------------
 def show_payment():
-    """
-    Shows the Pay button and payment link.
-    Once the user pays, Razorpay fires the webhook which marks
-    them as paid in Supabase. The auto-refresh above picks this
-    up within 5 seconds and unlocks the full report automatically.
-    """
     if st.button("Get Full Report (Rs. 19)"):
         try:
             res = requests.post(
@@ -229,32 +223,25 @@ def show_payment():
                 json={"email": st.session_state["user_email"]},
                 headers=auth_headers()
             )
-
-            # if res.status_code == 401:
-            #     st.error("Session expired. Please log in again.")
-            #     st.session_state.clear()
-            #     st.rerun()
-
             data = res.json()
-
             if "payment_url" not in data:
                 st.error("Could not generate payment link")
                 return
-
             st.session_state["payment_link"] = data["payment_url"]
-
         except Exception as e:
             st.error(f"Payment error: {str(e)}")
 
     if st.session_state["payment_link"]:
         st.success("Payment link ready!")
+        # ← Opens in NEW TAB — original page stays untouched
         st.markdown(
-            f'<a href="{st.session_state["payment_link"]}" target="_self">Pay Rs. 19 Now</a>',
+            f'<a href="{st.session_state["payment_link"]}" target="_blank">'
+            f'Pay Rs. 19 Now (opens in new tab)</a>',
             unsafe_allow_html=True
         )
-        # Auto-refresh is already polling — no manual button needed
-        st.info("Complete the payment. You will be redirected back automatically.")
-
+        st.info("After completing payment, click the button below.")
+        if st.button("I have paid — unlock my report"):
+            st.rerun()  # just rechecks payment status, no session loss
 
 # -----------------------------------
 # ANALYSIS TRIGGER
