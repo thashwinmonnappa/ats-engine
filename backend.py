@@ -231,3 +231,49 @@ async def webhook(request: Request):
 def debug_payments():
     result = supabase.table("payments").select("*").execute()
     return {"data": result.data}
+
+from fastapi.responses import HTMLResponse
+
+@app.get("/payment-success", response_class=HTMLResponse)
+async def payment_success():
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Payment Successful</title>
+        <style>
+            body {
+                font-family: sans-serif;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                margin: 0;
+                background: #0e1117;
+                color: white;
+            }
+            .checkmark { font-size: 64px; margin-bottom: 16px; }
+            .countdown { font-size: 18px; color: #888; margin-top: 12px; }
+        </style>
+    </head>
+    <body>
+        <div class="checkmark">✅</div>
+        <h2>Payment Successful!</h2>
+        <p>You can now go back to the analyzer tab.</p>
+        <p class="countdown">This tab will close in <span id="count">3</span> seconds...</p>
+        <script>
+            let count = 3;
+            const el = document.getElementById('count');
+            const timer = setInterval(() => {
+                count--;
+                el.textContent = count;
+                if (count <= 0) {
+                    clearInterval(timer);
+                    window.close();
+                }
+            }, 1000);
+        </script>
+    </body>
+    </html>
+    """
