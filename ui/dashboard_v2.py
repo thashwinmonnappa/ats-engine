@@ -216,7 +216,7 @@ elif st.session_state["last_input"] != current_input:
 # PAYMENT FLOW
 # -----------------------------------
 def show_payment():
-    if st.button("Get Full Report (Rs. 19)"):
+    if st.button("Get Full Report (PAID)"):
         try:
             res = requests.post(
                 f"{BACKEND_URL}/create-payment-link",
@@ -232,16 +232,33 @@ def show_payment():
             st.error(f"Payment error: {str(e)}")
 
     if st.session_state["payment_link"]:
-        st.success("Payment link ready!")
+        # st.success("Payment link ready!")
         # ← Opens in NEW TAB — original page stays untouched
         st.markdown(
             f'<a href="{st.session_state["payment_link"]}" target="_blank">'
-            f'Pay Rs. 19 Now (opens in new tab)</a>',
+            f'Pay ₹19 (Razorpay)</a>',
             unsafe_allow_html=True
         )
         st.info("After completing payment, click the button below.")
         if st.button("I have paid — unlock my report"):
             st.rerun()  # just rechecks payment status, no session loss
+
+    if st.button("I have paid — unlock my report"):
+        # Check payment status before rerunning
+        try:
+            res = requests.get(
+                f"{BACKEND_URL}/check-payment",
+                headers=auth_headers()
+            )
+            if res.status_code == 200 and res.json()["paid"]:
+                # Payment confirmed — safe to rerun
+                st.session_state["returning_from_payment"] = True
+                st.rerun()
+            else:
+                # Not paid yet — show warning, don't rerun at all
+                st.warning("Payment not confirmed yet. Please complete the payment and try again.")
+        except Exception as e:
+            st.warning(f"Could not verify payment: {str(e)}")
 
 # -----------------------------------
 # ANALYSIS TRIGGER
@@ -328,8 +345,10 @@ if st.session_state["analysis_done"]:
 
     if preview["final_score"] < 70:
         st.error("Your resume may get filtered out by ATS systems")
+    elif preview["final_score"] < 90 and preview["final_score"] >= 70:
+        st.warning("Your resume is moderately ATS-friendly")
     else:
-        st.success("Your resume is moderately ATS-friendly")
+        st.success("Your resume is highly ATS-friendly")
 
     # --- PAYMENT GATE ---
     if not st.session_state["paid_user"]:
