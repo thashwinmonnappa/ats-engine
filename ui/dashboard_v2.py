@@ -45,6 +45,7 @@ for key, default in {
     "last_input":             "",
     "last_check_time":        0,
     "returning_from_payment": False,
+    "payment_warning": None,
 }.items():
     if key not in st.session_state:
         st.session_state[key] = default
@@ -246,12 +247,17 @@ def show_payment():
                     headers=auth_headers()
                 )
                 if res.status_code == 200 and res.json()["paid"]:
+                    st.session_state["payment_warning"] = None
                     st.session_state["returning_from_payment"] = True
                     st.rerun()
                 else:
-                    st.warning("Payment not confirmed yet. Please complete the payment and try again.")
+                    st.session_state["payment_warning"] = "Payment not confirmed yet. Please complete the payment and try again."
             except Exception as e:
-                st.warning(f"Could not verify payment: {str(e)}")
+                st.session_state["payment_warning"] = f"Could not verify payment: {str(e)}"
+
+        # Show warning if it exists — persists across reruns
+        if st.session_state.get("payment_warning"):
+            st.warning(st.session_state["payment_warning"])
 # -----------------------------------
 # ANALYSIS TRIGGER
 # -----------------------------------
