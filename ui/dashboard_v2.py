@@ -144,23 +144,23 @@ except Exception as e:
     st.error(f"Could not reach backend: {str(e)}")
 
 
-# -----------------------------------
-# AUTO REFRESH (while waiting for payment webhook)
-# -----------------------------------
-# Polls every 5 seconds after the payment link is opened.
-# Once the webhook fires and marks the user as paid,
-# the next poll unlocks the full report automatically.
-# No manual "I paid" button needed.
-current_time = time.time()
+# # -----------------------------------
+# # AUTO REFRESH (while waiting for payment webhook)
+# # -----------------------------------
+# # Polls every 5 seconds after the payment link is opened.
+# # Once the webhook fires and marks the user as paid,
+# # the next poll unlocks the full report automatically.
+# # No manual "I paid" button needed.
+# current_time = time.time()
 
-if (
-    st.session_state["analysis_done"]
-    and not st.session_state["paid_user"]
-    and st.session_state["payment_link"] is not None
-    and current_time - st.session_state["last_check_time"] > 5
-):
-    st.session_state["last_check_time"] = current_time
-    st.rerun()
+# if (
+#     st.session_state["analysis_done"]
+#     and not st.session_state["paid_user"]
+#     and st.session_state["payment_link"] is not None
+#     and current_time - st.session_state["last_check_time"] > 5
+# ):
+#     st.session_state["last_check_time"] = current_time
+#     st.rerun()
 
 
 # -----------------------------------
