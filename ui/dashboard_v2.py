@@ -232,34 +232,26 @@ def show_payment():
             st.error(f"Payment error: {str(e)}")
 
     if st.session_state["payment_link"]:
-        # st.success("Payment link ready!")
-        # ← Opens in NEW TAB — original page stays untouched
         st.markdown(
             f'<a href="{st.session_state["payment_link"]}" target="_blank">'
-            f'Pay ₹19 (Razorpay)</a>',
+            f'Pay Rs. 19 (Razorpay)</a>',
             unsafe_allow_html=True
         )
         st.info("After completing payment, click the button below.")
+
         if st.button("I have paid — unlock my report"):
-            st.rerun()  # just rechecks payment status, no session loss
-
-    if st.button("I have paid — unlock my report"):
-        # Check payment status before rerunning
-        try:
-            res = requests.get(
-                f"{BACKEND_URL}/check-payment",
-                headers=auth_headers()
-            )
-            if res.status_code == 200 and res.json()["paid"]:
-                # Payment confirmed — safe to rerun
-                st.session_state["returning_from_payment"] = True
-                st.rerun()
-            else:
-                # Not paid yet — show warning, don't rerun at all
-                st.warning("Payment not confirmed yet. Please complete the payment and try again.")
-        except Exception as e:
-            st.warning(f"Could not verify payment: {str(e)}")
-
+            try:
+                res = requests.get(
+                    f"{BACKEND_URL}/check-payment",
+                    headers=auth_headers()
+                )
+                if res.status_code == 200 and res.json()["paid"]:
+                    st.session_state["returning_from_payment"] = True
+                    st.rerun()
+                else:
+                    st.warning("Payment not confirmed yet. Please complete the payment and try again.")
+            except Exception as e:
+                st.warning(f"Could not verify payment: {str(e)}")
 # -----------------------------------
 # ANALYSIS TRIGGER
 # -----------------------------------
