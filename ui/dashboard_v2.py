@@ -235,12 +235,12 @@ def show_payment():
     if st.session_state["payment_link"]:
         st.markdown(
             f'<a href="{st.session_state["payment_link"]}" target="_blank">'
-            f'Pay Rs. 19 (Razorpay)</a>',
+            f'Pay ₹19 (Razorpay)</a>',
             unsafe_allow_html=True
         )
         st.info("After completing payment, click the button below.")
 
-        if st.button("I have paid — unlock my report"):
+        if st.button("I have paid — unlock full report"):
             try:
                 res = requests.get(
                     f"{BACKEND_URL}/check-payment",
