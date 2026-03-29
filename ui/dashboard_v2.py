@@ -21,13 +21,75 @@ from skill_gap_panel import show_skill_gap
 # CONFIG
 # -----------------------------------
 # BACKEND_URL = "http://127.0.0.1:8000"  # Local backend (for development)
-BACKEND_URL = "https://ats-engine-production.up.railway.app"  
+BACKEND_URL = (
+    "https://ats-engine-production.up.railway.app"  # Deployed backend (for production)
+)
 
 st.set_page_config(page_title="AI Resume ATS Analyzer", layout="wide")
+
+st.markdown(
+    """
+<style>
+.header-box {
+    background: linear-gradient(135deg, #114523, #111827);
+    padding: 25px 30px;
+    border-radius: 14px;
+    border: 1px solid #2a2f3a;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.4);
+    margin-bottom: 25px;
+}
+
+.header-title {
+    font-size: 50px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.header-sub {
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+/* Logout button styling */
+div[data-testid="stButton"] > button {
+    # background-color: #3b161b;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+div[data-testid="stButton"] > button:hover {
+    background-color: #0d4d38;
+}
+            
+.login-card {
+    background: linear-gradient(135deg, #520202, #111d27);
+    padding: 30px;
+    border-radius: 16px;
+    border: 1px solid #2a2f3a;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    margin-bottom: 20px;
+}
+
+.login-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+            
+</style>
+""",
+    unsafe_allow_html=True,
+)
+
 
 @st.cache_resource
 def load_pipeline():
     return ATSPipelineV2()
+
 
 pipeline = load_pipeline()
 
@@ -36,14 +98,14 @@ pipeline = load_pipeline()
 # SESSION STATE INIT
 # -----------------------------------
 for key, default in {
-    "user_email":             None,
-    "token":                  None,
-    "paid_user":              False,
-    "analysis_done":          False,
-    "results":                None,
-    "payment_link":           None,
-    "last_input":             "",
-    "last_check_time":        0,
+    "user_email": None,
+    "token": None,
+    "paid_user": False,
+    "analysis_done": False,
+    "results": None,
+    "payment_link": None,
+    "last_input": "",
+    "last_check_time": 0,
     "returning_from_payment": False,
     "payment_warning": None,
 }.items():
@@ -72,20 +134,19 @@ if not st.session_state["token"] and "token" in params:
     token = params["token"]
     email = params["email"]
 
-    st.session_state["token"]                  = token
-    st.session_state["user_email"]             = email
+    st.session_state["token"] = token
+    st.session_state["user_email"] = email
     st.session_state["returning_from_payment"] = True
 
     # Fetch previously saved results from Supabase
     try:
         res = requests.get(
-            f"{BACKEND_URL}/get-results",
-            headers={"Authorization": f"Bearer {token}"}
+            f"{BACKEND_URL}/get-results", headers={"Authorization": f"Bearer {token}"}
         )
         if res.status_code == 200:
             saved = res.json().get("results")
             if saved:
-                st.session_state["results"]       = saved
+                st.session_state["results"] = saved
                 st.session_state["analysis_done"] = True
     except Exception:
         pass  # Non-critical — user just needs to re-upload if this fails
@@ -99,28 +160,40 @@ if not st.session_state["token"] and "token" in params:
 # -----------------------------------
 if not st.session_state["token"]:
 
-    st.title("Login to continue")
-    email = st.text_input("Enter your email")
+    # Center using columns (REAL fix)
+    col1, col2, col3 = st.columns([2, 3, 2])
 
-    if st.button("Login"):
-        if not email:
-            st.warning("Please enter your email")
-            st.stop()
+    with col2:
+        st.markdown(
+            """
+        <div class="login-card">
+            <div class="header-title"> 🤖 AI Resume ATS Analyzer 🤖 </div>
+            <div class="login-title">🔐 Login to continue</div>
+        </div>
+        """,
+            unsafe_allow_html=True,
+        )
+        email = st.text_input("Enter your email")
 
-        try:
-            res = requests.post(f"{BACKEND_URL}/login", json={"email": email})
+        if st.button("Login"):
+            if not email:
+                st.warning("Please enter your email")
+                st.stop()
 
-            if res.status_code == 200:
-                data = res.json()
-                st.session_state["user_email"] = data["email"]
-                st.session_state["token"]      = data["token"]
-                st.success("Logged in!")
-                st.rerun()
-            else:
-                st.error(f"Login failed: {res.text}")
+            try:
+                res = requests.post(f"{BACKEND_URL}/login", json={"email": email})
 
-        except Exception as e:
-            st.error(f"Backend not reachable: {str(e)}")
+                if res.status_code == 200:
+                    data = res.json()
+                    st.session_state["user_email"] = data["email"]
+                    st.session_state["token"] = data["token"]
+                    st.success("Logged in!")
+                    st.rerun()
+                else:
+                    st.error(f"Login failed: {res.text}")
+
+            except Exception as e:
+                st.error(f"Backend not reachable: {str(e)}")
 
     st.stop()
 
@@ -143,53 +216,41 @@ try:
 except Exception as e:
     st.error(f"Could not reach backend: {str(e)}")
 
-
-# # -----------------------------------
-# # AUTO REFRESH (while waiting for payment webhook)
-# # -----------------------------------
-# # Polls every 5 seconds after the payment link is opened.
-# # Once the webhook fires and marks the user as paid,
-# # the next poll unlocks the full report automatically.
-# # No manual "I paid" button needed.
-# current_time = time.time()
-
-# if (
-#     st.session_state["analysis_done"]
-#     and not st.session_state["paid_user"]
-#     and st.session_state["payment_link"] is not None
-#     and current_time - st.session_state["last_check_time"] > 5
-# ):
-#     st.session_state["last_check_time"] = current_time
-#     st.rerun()
-
-
 # -----------------------------------
 # HEADER + LOGOUT
 # -----------------------------------
-col1, col2 = st.columns([8, 1])
+with st.container():
 
-with col1:
-    st.title("AI Resume ATS Analyzer")
-    st.caption(f"Logged in as: {st.session_state['user_email']}")
+    col1, col2 = st.columns([6, 1])
 
-with col2:
-    if st.button("Logout"):
-        st.session_state.clear()
-        st.rerun()
+    with col1:
+        st.markdown(
+            f"""
+        <div class="header-box">
+            <div class="header-title"> 🤖 AI Resume ATS Analyzer 🤖 </div>
+            <div class="header-sub">Logged in as 👤: {st.session_state['user_email']} </div>
+        </div>
+        """,
+            unsafe_allow_html=True,
+        )
 
+    with col2:
+        st.markdown("<br><br>", unsafe_allow_html=True)
+
+        if st.button("🚪 Logout", key="logout_button"):
+            st.session_state.clear()
+            st.rerun()
 
 # -----------------------------------
 # SIDEBAR INPUTS
 # -----------------------------------
 with st.sidebar:
     resume_files = st.file_uploader(
-        "Upload Resume(s)",
-        type=["pdf", "docx", "txt"],
-        accept_multiple_files=True
+        "Upload Resume(s)", type=["pdf", "docx", "txt"], accept_multiple_files=True
     )
 
-    jd_file     = st.file_uploader("Upload Job Description", type=["pdf", "docx", "txt"])
-    jd_text     = st.text_area("Or Paste Job Description")
+    jd_file = st.file_uploader("Upload Job Description", type=["pdf", "docx", "txt"])
+    jd_text = st.text_area("Or Paste Job Description")
     analyze_btn = st.button("Analyze Resumes")
 
 
@@ -208,9 +269,9 @@ if st.session_state["returning_from_payment"]:
 elif st.session_state["last_input"] != current_input:
     # Genuine input change — reset analysis
     st.session_state["analysis_done"] = False
-    st.session_state["results"]       = None
-    st.session_state["payment_link"]  = None
-    st.session_state["last_input"]    = current_input
+    st.session_state["results"] = None
+    st.session_state["payment_link"] = None
+    st.session_state["last_input"] = current_input
 
 
 # -----------------------------------
@@ -222,7 +283,7 @@ def show_payment():
             res = requests.post(
                 f"{BACKEND_URL}/create-payment-link",
                 json={"email": st.session_state["user_email"]},
-                headers=auth_headers()
+                headers=auth_headers(),
             )
             data = res.json()
             if "payment_url" not in data:
@@ -235,35 +296,40 @@ def show_payment():
     if st.session_state["payment_link"]:
         st.markdown(
             f'<a href="{st.session_state["payment_link"]}" target="_blank">'
-            f'Pay ₹19 (Razorpay)</a>',
-            unsafe_allow_html=True
+            f"Pay ₹19 (Razorpay)</a>",
+            unsafe_allow_html=True,
         )
         st.info("After completing payment, click the button below.")
 
         if st.button("I have paid — unlock full report"):
             try:
                 res = requests.get(
-                    f"{BACKEND_URL}/check-payment",
-                    headers=auth_headers()
+                    f"{BACKEND_URL}/check-payment", headers=auth_headers()
                 )
                 if res.status_code == 200 and res.json()["paid"]:
                     st.session_state["payment_warning"] = None
                     st.session_state["returning_from_payment"] = True
                     st.rerun()
                 else:
-                    st.session_state["payment_warning"] = "Payment not confirmed yet. Please complete the payment and try again."
+                    st.session_state["payment_warning"] = (
+                        "Payment not confirmed yet. Please complete the payment and try again."
+                    )
             except Exception as e:
-                st.session_state["payment_warning"] = f"Could not verify payment: {str(e)}"
+                st.session_state["payment_warning"] = (
+                    f"Could not verify payment: {str(e)}"
+                )
 
         # Show warning if it exists — persists across reruns
         if st.session_state.get("payment_warning"):
             st.warning(st.session_state["payment_warning"])
+
+
 # -----------------------------------
 # ANALYSIS TRIGGER
 # -----------------------------------
 if analyze_btn:
     st.session_state["analysis_done"] = True
-    st.session_state["results"]       = None  # clear old results on fresh analysis
+    st.session_state["results"] = None  # clear old results on fresh analysis
 
 
 # -----------------------------------
@@ -285,7 +351,7 @@ if st.session_state["analysis_done"]:
 
         # Handle JD input
         if jd_file:
-            suffix  = os.path.splitext(jd_file.name)[1].lower()
+            suffix = os.path.splitext(jd_file.name)[1].lower()
             temp_jd = tempfile.NamedTemporaryFile(delete=False, suffix=suffix).name
             with open(temp_jd, "wb") as f:
                 f.write(jd_file.read())
@@ -297,7 +363,7 @@ if st.session_state["analysis_done"]:
         results = []
 
         for file in resume_files:
-            suffix      = os.path.splitext(file.name)[1].lower()
+            suffix = os.path.splitext(file.name)[1].lower()
             temp_resume = tempfile.NamedTemporaryFile(delete=False, suffix=suffix).name
             with open(temp_resume, "wb") as f:
                 f.write(file.read())
@@ -308,11 +374,9 @@ if st.session_state["analysis_done"]:
                 st.error(f"Error processing {file.name}: {str(e)}")
                 continue
 
-            results.append({
-                "name":   file.name,
-                "score":  report["final_score"],
-                "report": report
-            })
+            results.append(
+                {"name": file.name, "score": report["final_score"], "report": report}
+            )
 
         if not results:
             st.error("No valid results. Check your files and try again.")
@@ -326,7 +390,7 @@ if st.session_state["analysis_done"]:
             requests.post(
                 f"{BACKEND_URL}/save-results",
                 json={"results": results},
-                headers=auth_headers()
+                headers=auth_headers(),
             )
         except Exception:
             pass  # Non-critical
@@ -336,7 +400,7 @@ if st.session_state["analysis_done"]:
 
     # --- PREVIEW (visible to all users) ---
     st.metric("ATS Score", f"{round(preview['final_score'], 2)}%")
-    st.plotly_chart(radar_chart(preview), use_container_width="auto")
+    st.plotly_chart(radar_chart(preview), use_container_width=True)
 
     st.write("Key missing skills impacting your score:")
     st.write(preview["missing_skills"][:3])
