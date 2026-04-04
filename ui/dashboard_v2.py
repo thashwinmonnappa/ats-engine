@@ -37,27 +37,29 @@ st.markdown(
     border: 1px solid #2a2f3a;
     box-shadow: 0 6px 25px rgba(0,0,0,0.4);
     margin-bottom: 25px;
+    text-align: center;
 }
 
 .header-title {
-    font-size: 50px;
-    font-weight: 700;
-    margin-bottom: 8px;
+    font-size: 40px;
+    font-weight: 800;
+    margin-bottom: 10px;
 }
 
 .header-sub {
     color: #9ca3af;
-    font-size: 14px;
+    font-size: 15px;
+    font-weight: 500;
 }
 
 /* Logout button styling */
 div[data-testid="stButton"] > button {
     # background-color: #3b161b;
     color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-size: 16px;
+    border: slategray 2px solid;
+    padding: 10px 15px;
+    border-radius: 15px;
+    font-size: 15px;
     cursor: pointer;
 }
 
@@ -72,11 +74,12 @@ div[data-testid="stButton"] > button:hover {
     border: 1px solid #2a2f3a;
     box-shadow: 0 8px 30px rgba(0,0,0,0.5);
     margin-bottom: 20px;
+    text-align: center;
 }
 
 .login-title {
-    font-size: 28px;
-    font-weight: 700;
+    font-size: 25px;
+    font-weight: 600;
     margin-bottom: 10px;
 }
             
@@ -167,7 +170,7 @@ if not st.session_state["token"]:
         st.markdown(
             """
         <div class="login-card">
-            <div class="header-title"> 🤖 AI Resume ATS Analyzer 🤖 </div>
+            <div class="header-title"> 🤖 AI Resume ATS Analyzer </div>
             <div class="login-title">🔐 Login to continue</div>
         </div>
         """,
@@ -227,7 +230,7 @@ with st.container():
         st.markdown(
             f"""
         <div class="header-box">
-            <div class="header-title"> 🤖 AI Resume ATS Analyzer 🤖 </div>
+            <div class="header-title"> 🤖 AI Resume ATS Analyzer </div>
             <div class="header-sub">Logged in as 👤: {st.session_state['user_email']} </div>
         </div>
         """,
@@ -402,8 +405,13 @@ if st.session_state["analysis_done"]:
     st.metric("ATS Score", f"{round(preview['final_score'], 2)}%")
     st.plotly_chart(radar_chart(preview), use_container_width=True)
 
-    st.write("Key missing skills impacting your score:")
-    st.write(preview["missing_skills"][:3])
+    st.subheader("**🎯 Key missing skills impacting your score:**")
+    
+    missing_skills = preview["missing_skills"][:5]
+    cols = st.columns(len(missing_skills))
+    for idx, skill in enumerate(missing_skills):
+        with cols[idx]:
+            st.info(f"{skill}😞")
 
     if preview["final_score"] < 70:
         st.error("Your resume may get filtered out by ATS systems")
@@ -419,6 +427,14 @@ if st.session_state["analysis_done"]:
 
     # --- FULL REPORT (paid users only) ---
     st.subheader("Full Analysis")
-    show_score_cards(preview)
-    show_skill_gap(preview)
-    show_skill_comparison(preview)
+
+    tab1, tab2, tab3 = st.tabs(["📊 Score Cards", "🎯 Skill Gap", "📈 Comparison"])
+
+    with tab1:
+        show_score_cards(preview)
+
+    with tab2:
+        show_skill_gap(preview)
+
+    with tab3:
+        show_skill_comparison(preview)

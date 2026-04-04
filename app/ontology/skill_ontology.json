@@ -1,34 +1,109 @@
 {
-  "machine_learning": [
-    "deep learning",
-    "supervised learning",
-    "unsupervised learning"
+  "machine learning": [
+    "deep learning", "supervised learning", "unsupervised learning",
+    "reinforcement learning", "semi-supervised learning",
+    "scikit-learn", "xgboost", "lightgbm", "catboost",
+    "feature engineering", "model deployment", "model monitoring",
+    "mlflow", "wandb"
   ],
 
   "deep learning": [
-    "cnn",
-    "rnn",
-    "transformers",
-    "lstm"
+    "cnn", "rnn", "transformers", "lstm", "gru",
+    "pytorch", "tensorflow", "keras", "jax",
+    "computer vision", "image classification", "object detection"
   ],
 
   "nlp": [
-    "bert",
-    "ner",
-    "text classification",
-    "tokenization"
+    "bert", "gpt", "ner", "text classification", "tokenization",
+    "sentiment analysis", "named entity recognition",
+    "huggingface", "transformers", "spacy", "nltk"
+  ],
+
+  "generative ai": [
+    "llm", "large language model", "rag",
+    "retrieval augmented generation", "langchain",
+    "llamaindex", "semantic kernel", "openai",
+    "anthropic", "prompt engineering", "fine tuning",
+    "vector database", "pinecone", "weaviate", "chroma"
   ],
 
   "data engineering": [
-    "spark",
-    "airflow",
-    "kafka",
-    "etl"
+    "spark", "pyspark", "airflow", "kafka", "etl",
+    "dbt", "hadoop", "hive", "flink",
+    "snowflake", "bigquery", "redshift", "databricks"
   ],
 
   "cloud": [
-    "aws",
-    "azure",
-    "gcp"
+    "aws", "azure", "gcp", "google cloud",
+    "lambda", "ec2", "s3", "cloud functions",
+    "serverless", "vertex ai", "bedrock", "sagemaker"
+  ],
+
+  "devops": [
+    "docker", "kubernetes", "helm", "terraform",
+    "ansible", "ci/cd", "jenkins", "github actions",
+    "circleci", "argocd", "linux", "bash",
+    "monitoring", "grafana", "prometheus", "datadog"
+  ],
+
+  "backend engineering": [
+    "python", "java", "go", "golang", "rust", "scala", "c++",
+    "django", "flask", "fastapi", "spring boot", "express",
+    "rest api", "grpc", "graphql", "microservices",
+    "postgresql", "mysql", "mongodb", "redis", "kafka"
+  ],
+
+  "frontend engineering": [
+    "javascript", "typescript", "react", "angular", "vue",
+    "next.js", "html", "css", "sass", "tailwind",
+    "webpack", "vite", "jest", "cypress"
+  ],
+
+  "data analysis": [
+    "sql", "excel", "pandas", "numpy",
+    "tableau", "power bi", "looker",
+    "matplotlib", "seaborn", "plotly",
+    "statistical analysis", "hypothesis testing", "a/b testing"
+  ],
+
+  "product management": [
+    "product strategy", "product roadmap", "okrs", "kpis",
+    "user research", "ux research", "wireframing", "figma",
+    "backlog management", "sprint planning", "agile", "scrum",
+    "go to market", "gtm", "competitive analysis",
+    "mixpanel", "amplitude", "product analytics"
+  ],
+
+  "project management": [
+    "agile", "scrum", "kanban", "jira", "confluence",
+    "pmp", "prince2", "six sigma", "lean",
+    "stakeholder management", "risk management",
+    "budget management", "program management"
+  ],
+
+  "finance": [
+    "financial modeling", "financial analysis", "valuation",
+    "dcf", "lbo", "equity research", "fixed income",
+    "risk management", "credit risk", "portfolio management",
+    "bloomberg", "capital iq", "excel", "vba",
+    "accounting", "ifrs", "gaap", "audit", "compliance",
+    "quantitative finance", "algorithmic trading"
+  ],
+
+  "marketing": [
+    "digital marketing", "performance marketing", "seo", "sem",
+    "google ads", "meta ads", "content marketing",
+    "email marketing", "social media marketing",
+    "google analytics", "ga4", "crm", "salesforce", "hubspot",
+    "conversion rate optimization", "cro",
+    "customer acquisition", "marketing automation",
+    "brand management", "lead generation"
+  ],
+
+  "soft skills": [
+    "leadership", "team management", "communication",
+    "problem solving", "critical thinking", "analytical thinking",
+    "presentation", "stakeholder management", "cross functional",
+    "collaboration", "mentoring", "coaching"
   ]
 }

@@ -3,76 +3,421 @@ import re
 
 class DynamicSkillExtractor:
     """
-    Cloud-safe Hybrid Technical Skill Extractor
-    - No spaCy dependency
-    - Deterministic
-    - Regex + controlled vocabulary
-    - Designed for deployment stability
+    Multi-domain Hybrid Skill Extractor
+    Covers: Data Science/ML, Software Engineering, DevOps/Cloud,
+            Product Management, Finance, Marketing, General
+    - No external dependencies
+    - Regex + expanded controlled vocabulary
+    - Domain-agnostic design
     """
 
     def __init__(self):
 
-        # Strong technical keywords
         self.tech_keywords = [
-            "python", "sql", "r", "java", "c++",
-            "machine learning", "deep learning",
-            "nlp", "llm", "generative ai",
-            "pytorch", "tensorflow",
-            "scikit-learn", "statsmodels",
-            "pandas", "numpy", "matplotlib", "seaborn",
-            "huggingface", "transformers",
-            "langchain", "semantic kernel",
-            "openai", "vertex ai",
-            "aws", "azure", "gcp",
-            "pyspark", "spark",
-            "mlflow", "rag",
-            "git", "docker", "kubernetes",
-            "rest api", "api"
+            # ----------------------------
+            # DATA SCIENCE / ML / AI
+            # ----------------------------
+            "python",
+            "r",
+            "julia",
+            "machine learning",
+            "deep learning",
+            "reinforcement learning",
+            "supervised learning",
+            "unsupervised learning",
+            "semi-supervised learning",
+            "nlp",
+            "natural language processing",
+            "computer vision",
+            "llm",
+            "large language model",
+            "generative ai",
+            "gen ai",
+            "pytorch",
+            "tensorflow",
+            "keras",
+            "jax",
+            "scikit-learn",
+            "xgboost",
+            "lightgbm",
+            "catboost",
+            "statsmodels",
+            "scipy",
+            "pandas",
+            "numpy",
+            "matplotlib",
+            "seaborn",
+            "plotly",
+            "huggingface",
+            "transformers",
+            "bert",
+            "gpt",
+            "langchain",
+            "semantic kernel",
+            "llamaindex",
+            "openai",
+            "anthropic",
+            "vertex ai",
+            "bedrock",
+            "rag",
+            "vector database",
+            "pinecone",
+            "weaviate",
+            "chroma",
+            "mlflow",
+            "wandb",
+            "weights and biases",
+            "feature engineering",
+            "model deployment",
+            "model monitoring",
+            "a/b testing",
+            "hypothesis testing",
+            "statistical analysis",
+            "time series",
+            "forecasting",
+            "anomaly detection",
+            "recommendation systems",
+            "retrieval augmented generation",
+            # ----------------------------
+            # SOFTWARE ENGINEERING
+            # ----------------------------
+            "java",
+            "c++",
+            "c#",
+            "c",
+            "go",
+            "golang",
+            "rust",
+            "scala",
+            "javascript",
+            "typescript",
+            "node.js",
+            "nodejs",
+            "react",
+            "angular",
+            "vue",
+            "next.js",
+            "svelte",
+            "html",
+            "css",
+            "sass",
+            "tailwind",
+            "django",
+            "flask",
+            "fastapi",
+            "spring boot",
+            "express",
+            "graphql",
+            "rest api",
+            "grpc",
+            "websockets",
+            "microservices",
+            "monolith",
+            "event driven",
+            "object oriented programming",
+            "functional programming",
+            "design patterns",
+            "solid principles",
+            "clean code",
+            "unit testing",
+            "integration testing",
+            "tdd",
+            "bdd",
+            "junit",
+            "pytest",
+            "jest",
+            "selenium",
+            "cypress",
+            "postgresql",
+            "mysql",
+            "sqlite",
+            "oracle",
+            "mongodb",
+            "redis",
+            "elasticsearch",
+            "cassandra",
+            "kafka",
+            "rabbitmq",
+            "celery",
+            "git",
+            "github",
+            "gitlab",
+            "bitbucket",
+            "agile",
+            "scrum",
+            "kanban",
+            "jira",
+            "confluence",
+            "system design",
+            "distributed systems",
+            "scalability",
+            # ----------------------------
+            # DEVOPS / CLOUD / INFRA
+            # ----------------------------
+            "aws",
+            "azure",
+            "gcp",
+            "google cloud",
+            "docker",
+            "kubernetes",
+            "helm",
+            "istio",
+            "terraform",
+            "ansible",
+            "puppet",
+            "chef",
+            "ci/cd",
+            "jenkins",
+            "github actions",
+            "circleci",
+            "argocd",
+            "linux",
+            "bash",
+            "shell scripting",
+            "powershell",
+            "nginx",
+            "apache",
+            "load balancing",
+            "monitoring",
+            "observability",
+            "grafana",
+            "prometheus",
+            "datadog",
+            "splunk",
+            "elk stack",
+            "networking",
+            "vpc",
+            "dns",
+            "ssl",
+            "security",
+            "devsecops",
+            "sre",
+            "site reliability",
+            "serverless",
+            "lambda",
+            "cloud functions",
+            "pyspark",
+            "spark",
+            "hadoop",
+            "airflow",
+            "dbt",
+            "snowflake",
+            "bigquery",
+            "redshift",
+            "databricks",
+            # ----------------------------
+            # PRODUCT MANAGEMENT
+            # ----------------------------
+            "product management",
+            "product strategy",
+            "product roadmap",
+            "user research",
+            "ux research",
+            "usability testing",
+            "wireframing",
+            "prototyping",
+            "figma",
+            "sketch",
+            "zeplin",
+            "product analytics",
+            "funnel analysis",
+            "retention analysis",
+            "okrs",
+            "kpis",
+            "metrics",
+            "north star metric",
+            "go to market",
+            "gtm",
+            "market research",
+            "competitive analysis",
+            "prioritization",
+            "backlog management",
+            "sprint planning",
+            "stakeholder management",
+            "cross functional",
+            "customer discovery",
+            "user interviews",
+            "persona",
+            "product led growth",
+            "plg",
+            "growth hacking",
+            "mixpanel",
+            "amplitude",
+            "segment",
+            "heap",
+            # ----------------------------
+            # FINANCE / BANKING
+            # ----------------------------
+            "financial modeling",
+            "financial analysis",
+            "valuation",
+            "dcf",
+            "lbo",
+            "m&a",
+            "mergers and acquisitions",
+            "equity research",
+            "fixed income",
+            "derivatives",
+            "risk management",
+            "credit risk",
+            "market risk",
+            "portfolio management",
+            "asset management",
+            "bloomberg",
+            "capital iq",
+            "factset",
+            "excel",
+            "vba",
+            "power bi",
+            "tableau",
+            "accounting",
+            "ifrs",
+            "gaap",
+            "financial reporting",
+            "audit",
+            "compliance",
+            "regulatory",
+            "python for finance",
+            "quantitative finance",
+            "quant",
+            "algorithmic trading",
+            "backtesting",
+            "sql",
+            "data analysis",
+            # ----------------------------
+            # MARKETING / GROWTH
+            # ----------------------------
+            "digital marketing",
+            "performance marketing",
+            "growth marketing",
+            "seo",
+            "sem",
+            "ppc",
+            "google ads",
+            "meta ads",
+            "content marketing",
+            "copywriting",
+            "email marketing",
+            "social media marketing",
+            "influencer marketing",
+            "marketing analytics",
+            "google analytics",
+            "ga4",
+            "crm",
+            "salesforce",
+            "hubspot",
+            "marketo",
+            "conversion rate optimization",
+            "cro",
+            "brand management",
+            "brand strategy",
+            "customer acquisition",
+            "retention",
+            "churn",
+            "paid acquisition",
+            "organic growth",
+            "affiliate marketing",
+            "partnership marketing",
+            "marketing automation",
+            "lead generation",
+            # ----------------------------
+            # GENERAL / SOFT SKILLS
+            # ----------------------------
+            "leadership",
+            "team management",
+            "people management",
+            "communication",
+            "presentation",
+            "public speaking",
+            "problem solving",
+            "critical thinking",
+            "analytical thinking",
+            "project management",
+            "program management",
+            "pmp",
+            "prince2",
+            "six sigma",
+            "lean",
+            "microsoft office",
+            "word",
+            "powerpoint",
+            "data visualization",
+            "storytelling with data",
+            "business analysis",
+            "requirements gathering",
+            "vendor management",
+            "budget management",
         ]
 
-        # Non-technical words to filter out
+        # Words to filter out that aren't skills
         self.stop_words = {
-            "team", "development", "experience",
-            "business", "requirements", "solutions",
-            "role", "responsibilities", "degree",
-            "skills", "strong", "build", "assist",
-            "collaborate", "best practices",
-            "our team", "insightful visualizations",
-            "problem-solving", "cutting-edge"
+            "team",
+            "development",
+            "experience",
+            "business",
+            "requirements",
+            "solutions",
+            "role",
+            "responsibilities",
+            "degree",
+            "skills",
+            "strong",
+            "build",
+            "assist",
+            "collaborate",
+            "best practices",
+            "our team",
+            "problem-solving",
+            "cutting-edge",
+            "fast-paced",
+            "detail-oriented",
+            "self-starter",
+            "motivated",
+            "passionate",
+            "excellent",
+            "good",
+            "great",
+            "understanding",
+            "knowledge",
+            "ability",
+            "work",
+            "years",
+            "year",
+            "minimum",
+            "preferred",
+            "required",
         }
 
-        # Patterns
         self.acronym_pattern = re.compile(r"\b[A-Z]{2,}\b")
         self.camel_case_pattern = re.compile(r"\b[A-Z][a-z]+[A-Z][A-Za-z]*\b")
         self.hyphen_pattern = re.compile(r"\b[a-zA-Z]+-[a-zA-Z]+\b")
 
-    def extract(self, text: str, top_k: int = 50):
+    def extract(self, text: str, top_k: int = 80) -> list:
 
         text_lower = text.lower()
         skills = set()
 
-        # 1️⃣ Direct keyword detection
+        # 1. Direct keyword match (multi-word safe)
         for keyword in self.tech_keywords:
             if keyword in text_lower:
                 skills.add(keyword)
 
-        # 2️⃣ Acronyms (AWS, NLP, LLM)
+        # 2. Acronyms (AWS, NLP, LLM, CI/CD)
         for match in self.acronym_pattern.findall(text):
             skills.add(match.lower())
 
-        # 3️⃣ CamelCase tools (LangChain, PyTorch)
+        # 3. CamelCase tools (LangChain, PyTorch, HuggingFace)
         for match in self.camel_case_pattern.findall(text):
             skills.add(match.lower())
 
-        # 4️⃣ Hyphenated tech (scikit-learn)
+        # 4. Hyphenated terms (scikit-learn, fine-tuning)
         for match in self.hyphen_pattern.findall(text):
             skills.add(match.lower())
 
-        # 5️⃣ Clean + filter
+        # 5. Clean and filter
         cleaned = []
         for skill in skills:
             skill = skill.strip().lower()
-
             if len(skill) < 2:
                 continue
             if skill in self.stop_words:
@@ -81,7 +426,6 @@ class DynamicSkillExtractor:
                 continue
             if not re.search(r"[a-zA-Z]", skill):
                 continue
-
             cleaned.append(skill)
 
         return list(dict.fromkeys(cleaned))[:top_k]
