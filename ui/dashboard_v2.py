@@ -15,7 +15,7 @@ from app.pipeline.ats_pipeline_v2 import ATSPipelineV2
 from score_cards import show_score_cards
 from radar_chart import radar_chart
 from skill_gap_panel import show_skill_gap
-
+from ai_insights import show_ai_insights
 
 # -----------------------------------
 # CONFIG
@@ -403,7 +403,7 @@ if st.session_state["analysis_done"]:
 
     # --- PREVIEW (visible to all users) ---
     st.metric("ATS Score", f"{round(preview['final_score'], 2)}%")
-    st.plotly_chart(radar_chart(preview), use_container_width=True)
+    st.plotly_chart(radar_chart(preview), use_container_width=True, width='stretch')
 
     st.subheader("**🎯 Key missing skills impacting your score:**")
     
@@ -427,14 +427,23 @@ if st.session_state["analysis_done"]:
 
     # --- FULL REPORT (paid users only) ---
     st.subheader("Full Analysis")
-
-    tab1, tab2, tab3 = st.tabs(["📊 Score Cards", "🎯 Skill Gap", "📈 Comparison"])
-
+ 
+    tab1, tab2, tab3, tab4 = st.tabs([
+        "📊 Score Cards",
+        "🎯 Skill Gap",
+        "📈 Comparison",
+        "🤖 AI Insights"
+    ])
+ 
     with tab1:
         show_score_cards(preview)
-
+ 
     with tab2:
         show_skill_gap(preview)
-
+ 
     with tab3:
         show_skill_comparison(preview)
+ 
+    with tab4:
+        show_ai_insights(preview, BACKEND_URL, auth_headers())
+ 

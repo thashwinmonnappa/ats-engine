@@ -10,8 +10,11 @@ import json
 import jwt
 from datetime import datetime, timedelta
 from supabase import create_client, Client
+import httpx
+from dotenv import load_dotenv
+import os
 
-load_dotenv()
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
 
 app = FastAPI()
 security = HTTPBearer()
@@ -23,9 +26,11 @@ RAZORPAY_KEY_ID     = os.getenv("RAZORPAY_KEY_ID")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
 SUPABASE_URL        = os.getenv("SUPABASE_URL")
 SUPABASE_KEY        = os.getenv("SUPABASE_KEY")
-JWT_SECRET          = os.getenv("JWT_SECRET", "change-this-in-production")
 CALLBACK_URL        = os.getenv("CALLBACK_URL", "http://localhost:8501")
-
+HF_TOKEN            = os.getenv("HF_TOKEN")
+HF_MODEL            = os.getenv("HF_MODEL")
+HF_URL              = os.getenv("HF_URL")
+JWT_SECRET          = os.getenv("JWT_SECRET")
 JWT_ALGORITHM       = "HS256"
 JWT_EXPIRY_HOURS    = 24 * 7
 
@@ -67,11 +72,22 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 class LoginRequest(BaseModel):
     email: EmailStr
 
+
 class PaymentLinkRequest(BaseModel):
     email: EmailStr
 
+
 class SaveResultsRequest(BaseModel):
     results: list
+
+
+class InsightsRequest(BaseModel):
+    matched_skills: list
+    missing_skills: list
+    jd_skills: list
+    resume_skills: list
+    final_score: float
+    experience_alignment: float
 
 
 # -----------------------------------
@@ -80,7 +96,7 @@ class SaveResultsRequest(BaseModel):
 def create_jwt(email: str) -> str:
     payload = {
         "sub": email,
-        "exp": datetime.utcnow() + timedelta(hours=JWT_EXPIRY_HOURS)
+        "exp": datetime.utcnow() + timedelta(hours=JWT_EXPIRY_HOURS),
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
@@ -95,7 +111,9 @@ def verify_jwt(token: str) -> str:
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> str:
     return verify_jwt(credentials.credentials)
 
 
@@ -116,8 +134,7 @@ async def login(body: LoginRequest):
 # -----------------------------------
 @app.post("/create-payment-link")
 async def create_payment_link(
-    body: PaymentLinkRequest,
-    current_user: str = Depends(get_current_user)
+    body: PaymentLinkRequest, current_user: str = Depends(get_current_user)
 ):
     email = body.email
 
@@ -128,14 +145,16 @@ async def create_payment_link(
     token = create_jwt(email)
     callback_with_token = f"{CALLBACK_URL}?token={token}&email={email}"
 
-    payment_link = razorpay_client.payment_link.create({
-        "amount": 1900,
-        "currency": "INR",
-        "description": "ATS Resume Analysis - Full Report",
-        "notes": {"email": email},
-        "callback_url": callback_with_token,
-        "callback_method": "get"
-    })
+    payment_link = razorpay_client.payment_link.create(
+        {
+            "amount": 1900,
+            "currency": "INR",
+            "description": "ATS Resume Analysis - Full Report",
+            "notes": {"email": email},
+            "callback_url": callback_with_token,
+            "callback_method": "get",
+        }
+    )
 
     print(f"Payment link created for {email}: {payment_link['short_url']}")
     return {"payment_url": payment_link["short_url"]}
@@ -166,13 +185,11 @@ async def check_payment(current_user: str = Depends(get_current_user)):
 # Uses upsert so re-analyzing simply overwrites old results.
 @app.post("/save-results")
 async def save_results(
-    body: SaveResultsRequest,
-    current_user: str = Depends(get_current_user)
+    body: SaveResultsRequest, current_user: str = Depends(get_current_user)
 ):
-    supabase.table("analysis_results").upsert({
-        "email":   current_user,
-        "results": json.dumps(body.results)
-    }).execute()
+    supabase.table("analysis_results").upsert(
+        {"email": current_user, "results": json.dumps(body.results)}
+    ).execute()
 
     print(f"Results saved for {current_user}")
     return {"status": "ok"}
@@ -207,17 +224,16 @@ async def webhook(request: Request):
 
     if body.get("event") == "payment.captured":
         payment = body["payload"]["payment"]["entity"]
-        email   = payment.get("notes", {}).get("email")
+        email = payment.get("notes", {}).get("email")
         print(f"Webhook email: {email}")
 
         if not email:
             print("No email in notes, skipping")
             return {"status": "error", "reason": "missing email"}
 
-        supabase.table("payments").insert({
-            "email": email,
-            "status": "success"
-        }).execute()
+        supabase.table("payments").insert(
+            {"email": email, "status": "success"}
+        ).execute()
 
         print(f"Payment recorded for {email}")
 
@@ -232,7 +248,9 @@ def debug_payments():
     result = supabase.table("payments").select("*").execute()
     return {"data": result.data}
 
+
 from fastapi.responses import HTMLResponse
+
 
 @app.get("/payment-success", response_class=HTMLResponse)
 async def payment_success():
@@ -277,3 +295,67 @@ async def payment_success():
     </body>
     </html>
     """
+
+@app.post("/generate-insights")
+async def generate_insights(
+    body: InsightsRequest, current_user: str = Depends(get_current_user)
+):
+    """
+    Calls HuggingFace Inference API (Mistral-7B-Instruct)
+    to generate personalised resume improvement advice.
+    """
+
+    prompt = f"""<s>[INST]
+    You are an expert ATS resume coach. Analyse the following resume match data and give concise, actionable advice.
+    
+    ATS Score: {body.final_score}%
+    Experience Alignment: {round(body.experience_alignment * 100)}%
+    
+    Matched Skills: {", ".join(body.matched_skills[:15]) or "None"}
+    Missing Skills: {", ".join(body.missing_skills[:15]) or "None"}
+    JD Required Skills: {", ".join(body.jd_skills[:15]) or "None"}
+    
+    Write a structured report with these exact sections:
+    1. **Overall Assessment** — 2 sentences on the match quality
+    2. **Top Skills to Add** — 3-5 specific missing skills with one-line explanation each
+    3. **JD Highlights** — 3 key things the employer is looking for
+    4. **Resume Improvements** — 3 actionable tips to improve ATS score
+    5. **Quick Wins** — 2 things the candidate can do immediately
+    
+    Be specific, direct and concise. No generic advice.
+    [/INST]"""
+
+    headers = {
+        "Authorization": f"Bearer {HF_TOKEN}",
+        "Content-Type": "application/json",
+    }
+
+    payload = {
+        "model": HF_MODEL,
+        "messages": [{"role": "user", "content": prompt}],
+        "max_tokens": 500,
+        "temperature": 0,
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=60) as client:
+            res = await client.post(HF_URL, json=payload, headers=headers)
+
+        if res.status_code == 200:
+            data = res.json()
+
+            # ✅ NEW FORMAT (chat completions)
+            text = data["choices"][0]["message"]["content"]
+
+            return {"insights": text.strip()}
+
+        elif res.status_code == 503:
+            return {
+                "insights": "Model is loading. Please wait 20 seconds and try again."
+            }
+
+        else:
+            raise HTTPException(status_code=500, detail=f"HF API error: {res.text}")
+
+    except httpx.TimeoutException:
+        raise HTTPException(status_code=504, detail="HuggingFace API timed out")
