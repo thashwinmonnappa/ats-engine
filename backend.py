@@ -301,7 +301,7 @@ async def generate_insights(
     body: InsightsRequest, current_user: str = Depends(get_current_user)
 ):
     """
-    Calls HuggingFace Inference API (Mistral-7B-Instruct)
+    Calls HuggingFace Inference API (meta-llama/Meta-Llama-3-8B-Instruct)
     to generate personalised resume improvement advice.
     """
 

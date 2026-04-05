@@ -21,9 +21,21 @@ from ai_insights import show_ai_insights
 # CONFIG
 # -----------------------------------
 # BACKEND_URL = "http://127.0.0.1:8000"  # Local backend (for development)
-BACKEND_URL = (
-    "https://ats-engine-production.up.railway.app"  # Deployed backend (for production)
-)
+# BACKEND_URL = (
+#     "https://ats-engine-production.up.railway.app"  # Deployed backend (for production)
+# )
+
+PRIMARY_BACKEND = "https://ats-engine-production.up.railway.app"
+FALLBACK_BACKEND = "http://127.0.0.1:8000"
+def get_backend_url():
+    try:
+        res = requests.get(f"{PRIMARY_BACKEND}/docs", timeout=2)
+        if res.status_code == 200:
+            return PRIMARY_BACKEND
+    except:
+        pass
+    return FALLBACK_BACKEND
+BACKEND_URL = get_backend_url()
 
 st.set_page_config(page_title="AI Resume ATS Analyzer", layout="wide")
 
