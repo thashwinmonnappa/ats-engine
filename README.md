@@ -614,7 +614,7 @@ This project serves as a **real-world case study** comparing AI-assisted develop
 ## 👨‍💻 Author
 
 **Thashwin Monnappa**  
-Data Scientist | AI Engineer
+Data Scientist
 
 - LinkedIn: [thashwinmonnappa](https://linkedin.com/in/thashwinmonnappa)
 - GitHub: [thashwinmonnappa](https://github.com/thashwinmonnappa)
