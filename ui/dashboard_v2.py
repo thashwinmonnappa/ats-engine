@@ -37,7 +37,7 @@ def get_backend_url():
     return FALLBACK_BACKEND
 BACKEND_URL = get_backend_url()
 
-st.set_page_config(page_title="AI Resume ATS Analyzer", layout="wide")
+st.set_page_config(page_title="AI Resume Screening Engine (ATS)", layout="wide")
 
 st.markdown(
     """
@@ -182,7 +182,7 @@ if not st.session_state["token"]:
         st.markdown(
             """
         <div class="login-card">
-            <div class="header-title"> 🤖 AI Resume ATS Analyzer </div>
+            <div class="header-title"> 🤖 AI Resume Screening Engine (ATS) </div>
             <div class="login-title">🔐 Login to continue</div>
         </div>
         """,
@@ -242,7 +242,7 @@ with st.container():
         st.markdown(
             f"""
         <div class="header-box">
-            <div class="header-title"> 🤖 AI Resume ATS Analyzer </div>
+            <div class="header-title"> 🤖 AI Resume Screening Engine (ATS) </div>
             <div class="header-sub">Logged in as 👤: {st.session_state['user_email']} </div>
         </div>
         """,
